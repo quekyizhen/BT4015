@@ -18,8 +18,10 @@ community_club <- st_as_sf(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/D
 hawker_center <- st_as_sf(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/hawker-centres.shp"))
 # Read non-spatial data files
 income <- read_excel("C:/Users/user/Desktop/Study/BT4015/Project/Data/Household Income.xlsx")
-crime <- read_excel("C:/Users/user/Desktop/Study/BT4015/Project/Data/Total Crime.xlsx")
-
+crime_per_npc <- read.csv("C:/Users/user/Desktop/Study/BT4015/Project/Data/Crime Rate in Each NPC.csv")
+combined_attributes_with_total <- read_excel("C:/Users/user/Desktop/Study/BT4015/Project/Data/Combined Attributes.xlsx")
+combined_attributes <- combined_attributes_with_total[combined_attributes_with_total$`Planning Area of Residence` != 'Total', ] 
+combined_attributes$`Planning Area of Residence` <- lapply(combined_attributes$`Planning Area of Residence`, toupper)
 
 # Data cleaning for npc_area
 
@@ -42,16 +44,16 @@ qtm(npc_area, fill = "lightgreen")
 
 
 # Intersection
-intersection_area <- st_intersection(planning_area, npc_area)
-qtm(intersection_area)
-tm_shape(intersection_area) + 
-  tm_fill("gray") + 
-  tm_borders("black")
+#intersection_area <- st_intersection(planning_area, npc_area)
+#qtm(intersection_area)
+#tm_shape(intersection_area) + 
+#  tm_fill("gray") + 
+#  tm_borders("black")
 
 
 # Frequency count: planning area | npc | number of times they intersect
-counts <- ddply(intersection_area, .(intersection_area$PLN_AREA_N, intersection_area$NPC_NAME), nrow)
-counts
+#counts <- ddply(intersection_area, .(intersection_area$PLN_AREA_N, intersection_area$NPC_NAME), nrow)
+#counts
 
 
 # Centroid approach
@@ -88,16 +90,6 @@ tm_shape(npc_area_centroid_sf) +
 
 # 27 planning areas in household income
 name_27 = lapply(income$`Planning Area of Residence`, toupper)
-index_27 = planning_area$PLN_AREA_N %in% name_27
-planning_area_27 <- planning_area[index_27,]
-
-tm_shape(planning_area) + 
-  tm_fill("gray") + 
-  tm_borders("black") +
-tm_shape(planning_area_27) + 
-  tm_fill("red") + 
-  tm_borders("black") 
-
 # 30 planning areas of concern
 name_30 <- append(name_27, c('QUEENSTOWN', 'RIVER VALLEY', 'SEMBAWANG'))
 index_30 = planning_area$PLN_AREA_N %in% name_30
@@ -115,16 +107,17 @@ tm_shape(planning_area_27) +
 
 
 # Plot crime count per NPC against distribution of CC and HC
-npc_crime <- merge(npc_area, crime, by.x = "NPC_NAME", by.y = "npc")
-breaks <- seq(0, 500, 50)
+npc_crime <- merge(npc_area, crime_per_npc, by = "NPC_NAME")
+
 tmap_mode("view")
 tm_shape(npc_crime) + 
-  tm_fill("crime_count", breaks = breaks) + 
+  tm_fill("crime.rate.npc.area") + 
   tm_borders("black") +
 tm_shape(community_club) + 
-  tm_dots(col = "blue", size = 0.1) +
+  tm_dots(col = "blue", size = 0.03) +
 tm_shape(hawker_center) + 
-  tm_dots(col = "red", size = 0.1)
+  tm_dots(col = "red", size = 0.03)
+
 
 
 # Count points in each polygon
@@ -139,3 +132,8 @@ names(hc_npc_count)[names(hc_npc_count) == 'n'] <- 'HC_count'
 ## Join npc_crime with counts of CC and HC
 npc_crime <- merge(npc_crime, cc_npc_count, by = 'NPC_NAME', all.x=TRUE)
 npc_crime <- merge(npc_crime, hc_npc_count, by = 'NPC_NAME', all.x=TRUE)
+
+
+# Join planning area with Combined Attributes
+planning_area_30 <- merge(planning_area_30, combined_attributes, 
+                          by.x = 'PLN_AREA_N', by.y = 'Planning Area of Residence')
