@@ -16,6 +16,7 @@ planning_area_st <- readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/pla
 npc_area <- st_as_sf(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/npc-area.shp"))
 community_club <- st_as_sf(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/community-clubs.shp"))
 hawker_center <- st_as_sf(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/hawker-centres.shp"))
+tourist_attraction <- st_as_sf(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/tourism.shp"))
 # Read non-spatial data files
 income <- read_excel("C:/Users/user/Desktop/Study/BT4015/Project/Data/Household Income.xlsx")
 crime_per_npc <- read.csv("C:/Users/user/Desktop/Study/BT4015/Project/Data/Crime Rate in Each NPC.csv")
@@ -116,7 +117,9 @@ tm_shape(npc_crime) +
 tm_shape(community_club) + 
   tm_dots(col = "blue", size = 0.03) +
 tm_shape(hawker_center) + 
-  tm_dots(col = "red", size = 0.03)
+  tm_dots(col = "red", size = 0.03) +
+tm_shape(tourist_attraction) + 
+  tm_dots(col = "green", size = 0.03)
 
 
 
@@ -129,10 +132,18 @@ names(cc_npc_count)[names(cc_npc_count) == 'n'] <- 'CC_count'
 hc_npc_intersection <- st_intersection(x = npc_crime, y = hawker_center)
 hc_npc_count <- as.data.frame(hc_npc_intersection %>% group_by(NPC_NAME) %>% count())[, 1:2]
 names(hc_npc_count)[names(hc_npc_count) == 'n'] <- 'HC_count'
+## Count the number of TA per NPC
+ta_npc_intersection <- st_intersection(x = npc_crime, y = tourist_attraction)
+ta_npc_count <- as.data.frame(ta_npc_intersection %>% group_by(NPC_NAME) %>% count())[, 1:2]
+names(ta_npc_count)[names(ta_npc_count) == 'n'] <- 'TA_count'
 ## Join npc_crime with counts of CC and HC
 npc_crime <- merge(npc_crime, cc_npc_count, by = 'NPC_NAME', all.x=TRUE)
 npc_crime <- merge(npc_crime, hc_npc_count, by = 'NPC_NAME', all.x=TRUE)
-
+npc_crime <- merge(npc_crime, ta_npc_count, by = 'NPC_NAME', all.x=TRUE)
+## Get density of CC and HC per npc
+npc_crime["CC_density"] <- npc_crime["CC_count"] / npc_crime["NPC.Area.in.km2"]
+npc_crime["HC_density"] <- npc_crime["HC_count"] / npc_crime["NPC.Area.in.km2"]
+npc_crime["TA_density"] <- npc_crime["TA_count"] / npc_crime["NPC.Area.in.km2"]
 
 # Join planning area with Combined Attributes
 planning_area_30 <- merge(planning_area_30, combined_attributes, 
