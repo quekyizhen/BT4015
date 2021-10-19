@@ -8,6 +8,8 @@ library(geosphere)
 library(sfheaders)
 library(readxl)
 library(GISTools)
+library(raster)
+library(rgeos)
 
 
 # Read shp files and convert to sf objects
@@ -18,7 +20,6 @@ community_club <- st_as_sf(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/D
 hawker_center <- st_as_sf(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/hawker-centres.shp"))
 tourist_attraction <- st_as_sf(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/tourism.shp"))
 # Read non-spatial data files
-income <- read_excel("C:/Users/user/Desktop/Study/BT4015/Project/Data/Household Income.xlsx")
 crime_per_npc <- read.csv("C:/Users/user/Desktop/Study/BT4015/Project/Data/Crime Rate in Each NPC.csv")
 combined_attributes_with_total <- read_excel("C:/Users/user/Desktop/Study/BT4015/Project/Data/Combined Attributes.xlsx")
 combined_attributes <- combined_attributes_with_total[combined_attributes_with_total$`Planning Area of Residence` != 'Total', ] 
@@ -44,14 +45,6 @@ qtm(planning_area, fill = "lightblue")
 qtm(npc_area, fill = "lightgreen")
 
 
-# Intersection
-#intersection_area <- st_intersection(planning_area, npc_area)
-#qtm(intersection_area)
-#tm_shape(intersection_area) + 
-#  tm_fill("gray") + 
-#  tm_borders("black")
-
-
 # Frequency count: planning area | npc | number of times they intersect
 #counts <- ddply(intersection_area, .(intersection_area$PLN_AREA_N, intersection_area$NPC_NAME), nrow)
 #counts
@@ -60,59 +53,71 @@ qtm(npc_area, fill = "lightgreen")
 # Centroid approach
 
 ## Get centroid of planning area polygons
-planning_area_centroid <- centroid(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/planning-area.shp"))
-planning_area_centroid_sf <- SpatialPointsDataFrame(coords = planning_area_centroid, data = as.data.frame(planning_area_centroid))
-qtm(planning_area_centroid_sf)
+# planning_area_centroid <- centroid(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/planning-area.shp"))
+# planning_area_centroid_sf <- SpatialPointsDataFrame(coords = planning_area_centroid, data = as.data.frame(planning_area_centroid))
+# qtm(planning_area_centroid_sf)
+# 
+# ## Get centroid of planning area polygons
+# npc_area_centroid <- centroid(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/npc-area.shp"))
+# npc_area_centroid_sf <- SpatialPointsDataFrame(coords = npc_area_centroid, data = as.data.frame(npc_area_centroid))
+# 
+# ## Plot planning area and centroid of planning area
+# tm_shape(planning_area) + 
+#   tm_fill("gray") + 
+#   tm_borders("black") +
+#   tm_shape(planning_area_centroid_sf) +
+#   tm_dots(size = 0.1)
+# 
+# ## Plot npc area and centroid of planning area
+# tm_shape(npc_area) + 
+#   tm_fill("gray") + 
+#   tm_borders("black") +
+# tm_shape(planning_area_centroid_sf) +
+#   tm_dots(size = 0.1)
+# 
+# ## Plot 2 centroids against each other
+# tm_shape(planning_area_centroid_sf) +
+#   tm_dots(size = 0.1, col = 'red') + 
+# tm_shape(npc_area_centroid_sf) +
+#   tm_dots(size = 0.1)
 
-## Get centroid of planning area polygons
-npc_area_centroid <- centroid(readOGR("C:/Users/user/Desktop/Study/BT4015/Project/Data/npc-area.shp"))
-npc_area_centroid_sf <- SpatialPointsDataFrame(coords = npc_area_centroid, data = as.data.frame(npc_area_centroid))
 
-## Plot planning area and centroid of planning area
-tm_shape(planning_area) + 
-  tm_fill("gray") + 
-  tm_borders("black") +
-  tm_shape(planning_area_centroid_sf) +
-  tm_dots(size = 0.1)
-
-## Plot npc area and centroid of planning area
-tm_shape(npc_area) + 
-  tm_fill("gray") + 
-  tm_borders("black") +
-tm_shape(planning_area_centroid_sf) +
-  tm_dots(size = 0.1)
-
-## Plot 2 centroids against each other
-tm_shape(planning_area_centroid_sf) +
-  tm_dots(size = 0.1, col = 'red') + 
-tm_shape(npc_area_centroid_sf) +
-  tm_dots(size = 0.1)
-
-
-# 27 planning areas in household income
-name_27 = lapply(income$`Planning Area of Residence`, toupper)
 # 30 planning areas of concern
-name_30 <- append(name_27, c('QUEENSTOWN', 'RIVER VALLEY', 'SEMBAWANG'))
+name_30 <- combined_attributes$`Planning Area of Residence`
 index_30 = planning_area$PLN_AREA_N %in% name_30
 planning_area_30 <- planning_area[index_30,]
+
+# Join planning area with Combined Attributes
+planning_area_30 <- merge(planning_area_30, combined_attributes, 
+                          by.x = 'PLN_AREA_N', by.y = 'Planning Area of Residence')
 
 tm_shape(planning_area) + 
   tm_fill("gray") + 
   tm_borders("black") +
 tm_shape(planning_area_30) + 
   tm_fill("blue") + 
-  tm_borders("black") +
-tm_shape(planning_area_27) + 
-  tm_fill("red") + 
   tm_borders("black") 
 
 
 # Plot crime count per NPC against distribution of CC and HC
 npc_crime <- merge(npc_area, crime_per_npc, by = "NPC_NAME")
 
+# Crime rate, CC, HC, TA
 tmap_mode("view")
 tm_shape(npc_crime) + 
   tm_fill("crime.rate.npc.area") + 
+  tm_borders("black") +
+tm_shape(community_club) + 
+  tm_dots(col = "blue", size = 0.03) +
+tm_shape(hawker_center) + 
+  tm_dots(col = "red", size = 0.03) +
+tm_shape(tourist_attraction) + 
+  tm_dots(col = "green", size = 0.03)
+
+# Crime rate, planning area, CC, HC, TA
+tm_shape(npc_crime) + 
+  tm_fill("crime.rate.npc.area") + 
+tm_shape(planning_area_30) + 
   tm_borders("black") +
 tm_shape(community_club) + 
   tm_dots(col = "blue", size = 0.03) +
@@ -145,6 +150,68 @@ npc_crime["CC_density"] <- npc_crime["CC_count"] / npc_crime["NPC.Area.in.km2"]
 npc_crime["HC_density"] <- npc_crime["HC_count"] / npc_crime["NPC.Area.in.km2"]
 npc_crime["TA_density"] <- npc_crime["TA_count"] / npc_crime["NPC.Area.in.km2"]
 
-# Join planning area with Combined Attributes
-planning_area_30 <- merge(planning_area_30, combined_attributes, 
-                          by.x = 'PLN_AREA_N', by.y = 'Planning Area of Residence')
+# Intersect NPC and planning area
+intersection_full <- st_intersection(planning_area_30, npc_crime)
+intersection_full$'intersected_area_km2' <- area(as(intersection_full, 'Spatial')) / 1000000
+# Get only necessary columns
+intersection <- intersection_full[c("PLN_AREA_N", "Name", "Elderly.Ratio",
+                                    "Chinese.Ratio", "Malay.Ratio", "Indian.Ratio",
+                                    "Others.Ratio", "Male.Ratio", "Female.Ratio",
+                                    "Population.Density", "HDB.Housing.Density",
+                                    "Private.Housing.Density",
+                                    "Households.Below.Median.Income.Density",
+                                    "Households.Above.Median.Income.Density",
+                                    "NPC_NAME", "geometry", "NPC.Area.in.km2",
+                                    "intersected_area_km2")]
+intersection$intersected_area_proportion <- intersection$intersected_area_km2 / intersection$NPC.Area.in.km2
+
+# List of Ratio and Density columns
+variable_column_list <- c("Elderly.Ratio", "Chinese.Ratio", "Malay.Ratio", "Indian.Ratio",
+                          "Others.Ratio", "Male.Ratio", "Female.Ratio", "Population.Density", 
+                          "HDB.Housing.Density", "Private.Housing.Density",
+                          "Households.Below.Median.Income.Density",
+                          "Households.Above.Median.Income.Density")
+# Empty final data frame
+final_data_frame <- data.frame(matrix(ncol = length(variable_column_list) + 1, nrow = 0))
+# List of columns in the final data frame. Add "Scaled" to the Ratio and Density columns.
+colnames(final_data_frame) <- append("NPC_NAME", paste0("Scaled.", variable_column_list))
+
+# Scale all variables 
+# Scaled variable = Sum(Proportion of intersected area * Variable in planning area) / Sum(Proportion of intersected area)
+for (npc in npc_crime$NPC_NAME) {
+  intersection_within_that_npc <- as.data.frame(intersection[intersection$NPC_NAME == npc,])
+  row.names(intersection_within_that_npc) <- NULL
+  npc_row <- c(npc)
+  for (i in 3:(length(variable_column_list)+2)) {
+    proportion_sum = 0
+    proportion_variable = 0
+    for (j in 1:nrow(intersection_within_that_npc)){
+      proportion_sum = proportion_sum + intersection_within_that_npc$intersected_area_proportion[j]
+      proportion_variable = proportion_variable + 
+                  intersection_within_that_npc$intersected_area_proportion[j] *
+                  intersection_within_that_npc[j, i]
+    }
+    npc_row <- append(npc_row, proportion_variable / proportion_sum)
+  }
+  npc_row_df <- data.frame(matrix(ncol = length(variable_column_list) + 1, nrow = 0))
+  npc_row_df[1, ] = npc_row
+  colnames(npc_row_df) <- append("NPC_NAME", paste0("Scaled.", variable_column_list))
+  final_data_frame <- rbind(final_data_frame, npc_row_df)
+  final_data_frame <- final_data_frame[!duplicated(final_data_frame),]
+}
+
+# Convert scaled columns to numeric
+for (col in paste0("Scaled.", variable_column_list)) {
+  final_data_frame[, col] <- as.numeric(unlist(final_data_frame[, col]))
+}
+
+# Join final_data_frame back to npc_crime
+final_data_frame <- st_as_sf(merge(final_data_frame, npc_crime, by = "NPC_NAME"))
+final_data_frame_spatial <- as_Spatial(final_data_frame)
+
+writeOGR(final_data_frame_spatial, dsn = "C:/Users/user/Desktop/Study/BT4015/Project/Data",
+         layer = "NPC_all_attributes", driver="ESRI Shapefile")
+
+final_data_frame_columns <- as.data.frame(colnames(final_data_frame))
+colnames(final_data_frame_columns) <- c("column_names")
+write.csv(final_data_frame_columns, file = "C:/Users/user/Desktop/Study/BT4015/Project/Data/NPC_all_attributes_col_names.csv")
