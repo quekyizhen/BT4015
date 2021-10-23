@@ -46,4 +46,4 @@ tm_shape(NPC_points)+tm_dots("blue")
 out <- st_intersection(NPC_polygon_sf, NPC_points)
 points_in_poly <- out[c("Name", "NPC_NAME", "NO", "BLDG", "TYPE")]
 points_in_poly = points_in_poly[order(points_in_poly$NPC_NAME),]
-tm_shape(NPC_polygon_sf) + tm_polygons(col="pink") + tm_shape(NPC_points)+tm_dots("blue")
+tm_shape(NPC_polygon_sf) + tm_polygons(col="pink") + tm_shape(points_in_poly)+tm_dots("red") 
