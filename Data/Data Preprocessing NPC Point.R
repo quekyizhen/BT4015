@@ -145,13 +145,15 @@ TA <- st_as_sf(readOGR("C:/Users/Zi Ying/Dropbox/Y4S1/BT4015/BT4015/Data/tourism
 
 # Buffer for each police station/police post
 npc_point_buf <- st_buffer(points_in_poly, dist = 1000)
+#undissolved buffer
+tm_shape(npc_point_buf) + tm_polygons("blue") + tm_layout(title= 'Undissolved NPC Buffer', title.position = c('right', 'top'))
+
 npc_point_buf <- st_union(npc_point_buf)
 npc_point_buf <- sf::st_make_valid(npc_point_buf)
 tm_shape(pop_stats_by_npc) + tm_fill("Scl_P_D") + tm_shape(npc_point_buf) + tm_polygons("pink") + tm_shape(HC) + tm_dots("black") + tm_shape(CC) + tm_dots("green") +  tm_shape(TA) + tm_dots("blue")
 
-#tm_shape(npc_point_buf) + tm_polygons("purple")
-
-tm_shape(buf_int_npc) + tm_polygons("blue") + tm_shape(NPC_polygon_sf) + tm_borders("yellow") +  tm_shape(HC) + tm_dots("black")
+#plot hawker centre
+tm_shape(npc_point_buf) + tm_polygons("blue")+ tm_shape(HC) + tm_dots("black") + tm_layout(title= 'Hawker Centres in Dissolved NPC Buffer', title.position = c('right', 'top'))
 
 #count of hc, cc, ta in each buffer
 hc_buf_intersection <- st_intersection(HC, npc_point_buf) #polygon, point
@@ -161,6 +163,9 @@ tm_shape(NPC_polygon_sf) + tm_borders("yellow")+ tm_shape(hc_covered) + tm_dots(
 hc_buf_count <- as.data.frame(hc_covered %>% group_by(NPC_NAME) %>% count())[, 1:2]
 names(hc_buf_count)[names(hc_buf_count) == 'n'] <- 'HC_in_buffer'
 
+#plot CC
+tm_shape(npc_point_buf) + tm_polygons("blue")+ tm_shape(CC) + tm_dots("red") + tm_layout(title= 'Community Centres in Dissolved NPC Buffer', title.position = c('right', 'top'))
+
 #CC
 cc_buf_intersection <- st_intersection(CC, npc_point_buf) #polygon, point
 cc_covered <- st_intersection(NPC_polygon_sf, cc_buf_intersection)
@@ -168,6 +173,9 @@ tm_shape(NPC_polygon_sf) + tm_borders("yellow")+ tm_shape(cc_covered) + tm_dots(
 
 cc_buf_count <- as.data.frame(cc_covered %>% group_by(NPC_NAME) %>% count())[, 1:2]
 names(cc_buf_count)[names(cc_buf_count) == 'n'] <- 'CC_in_buffer'
+
+#plot TA
+tm_shape(npc_point_buf) + tm_polygons("blue")+ tm_shape(TA) + tm_dots("orange") + tm_layout(title= 'Tourist Attractions in Dissolved NPC Buffer', title.position = c('right', 'top'))
 
 #TA
 ta_buf_intersection <- st_intersection(TA, npc_point_buf) #polygon, point
