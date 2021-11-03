@@ -105,7 +105,7 @@ pop.lg.km <- rescale(pop.lg, 1000, "km")
 n <- 599L
 ann.r <- vector(length=n)
 for (i in 1:n){
-  rand.p   <- rpoint(n=intersected_points_ppp.km$n, f=pop.km, win=pop_stats_by_npc_owin.km) 
+  rand.p   <- rpoint(n=intersected_points_ppp.km$n, f=pop.lg.km, win=pop_stats_by_npc_owin.km) 
   ann.r[i] <- mean(nndist(rand.p, k=1))
 }
 
@@ -117,8 +117,25 @@ ann.p <- mean(nndist(intersected_points_ppp.km, k=1))
 ann.p
 
 #histogram
-hist(ann.r, main=NULL, las=1, col="bisque", xlim=range(ann.p, ann.r))
-abline(v=ann.p, col="blue")
+hist(log(ann.r), main=NULL, las=1, col="bisque", xlim=range(log(ann.p), log(ann.r)))
+abline(v=log(ann.p), col="blue")
+text(0.99, 170, "1.029995")
+
+N.greater <- sum(ann.r > ann.p)
+p <- min(N.greater + 1, n + 1 - N.greater) / (n +1)
+p
+
+#Poisson Point Process Hypothesis Testing
+PPM1 <- ppm(intersected_points_ppp.km ~ pop.lg.km)
+PPM1
+
+#fit the model that assumes that the process' intensity is not a function of population density
+PPM0 <- ppm(intersected_points_ppp.km ~ 1)
+PPM0
+
+#observed instensity
+intersected_points_ppp.km$n / area(pop_stats_by_npc_owin.km) 
+
 
 ## HC, CC, TA Coverage in each NPC buffer
 #read in hawker centre, cc and tourist attraction point data
@@ -187,3 +204,5 @@ final$CC_percent <- final$CC_in_buffer/final$CC_in_NPC_polygon*100
 final$TA_percent <- final$TA_in_buffer/final$TA_in_NPC_polygon*100
 
 final[is.na(final)] <- 0
+
+write.csv(final, "Percentage Cover of HC, CC, TA in each point buffer.csv")
