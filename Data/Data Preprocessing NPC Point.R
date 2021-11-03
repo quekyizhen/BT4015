@@ -117,8 +117,8 @@ ann.p <- mean(nndist(intersected_points_ppp.km, k=1))
 ann.p
 
 #histogram
-hist(log(ann.r), main=NULL, las=1, col="bisque", xlim=range(log(ann.p), log(ann.r)))
-abline(v=log(ann.p), col="blue")
+hist(ann.r, main=NULL, las=1, col="bisque", xlim=range(ann.p, ann.r))
+abline(v=ann.p, col="blue")
 text(0.99, 170, "1.029995")
 
 N.greater <- sum(ann.r > ann.p)
