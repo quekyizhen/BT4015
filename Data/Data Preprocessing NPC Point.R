@@ -76,24 +76,25 @@ intersected_points_spatial.utm <- spTransform(intersected_points_spatial, CRS("+
 
 intersected_points_ppp  <- as.ppp(intersected_points_spatial.utm)
 marks(intersected_points_ppp) <- NULL
-intersected_points_ppp.km <- rescale(intersected_points_ppp, 1000)
+intersected_points_ppp <- rescale(intersected_points_ppp, 1000)
+intersected_points_ppp.km <- rescale(intersected_points_ppp, 1000, "km")
 #Window(intersected_points_ppp.km) <- intersected_points_ppp.km
 #this line throws an error but seems to not be necessary?
 
 # get population density raster layer
 #img  <- raster(pop_stats_by_npc)
 
-r <- raster(pop_stats_npc)
-nrow(r) <-1000
-ncol(r) <- 1000
+r <- raster(pop_stats_by_npc.utm)
+nrow(r) <- 500
+ncol(r) <- 500
 
-r.polys <- rasterize(pop_stats_npc, r, pop_stats_npc@data[["Scl_P_D"]], update = TRUE, updateValue = "NA")
+r.polys <- rasterize(pop_stats_by_npc.utm, r, pop_stats_by_npc.utm@data[["Scl_P_D"]], update = TRUE, updateValue = "NA")
 
 plot(r.polys)
 
-pop  <- as.im(r.polys)
+pop <- as.im(r.polys)
 hist(pop, main=NULL, las=1)
-pop.km    <- rescale(pop, 1000, "km")
+pop.km <- rescale(pop, 1000, "km")
 
 pop.lg <- log(pop)
 hist(pop.lg, main=NULL, las=1) # not much difference in shape? is it really better?
@@ -105,7 +106,7 @@ pop.lg.km <- rescale(pop.lg, 1000, "km")
 n <- 599L
 ann.r <- vector(length=n)
 for (i in 1:n){
-  rand.p   <- rpoint(n=intersected_points_ppp.km$n, f=pop.lg.km, win=pop_stats_by_npc_owin.km) 
+  rand.p <- rpoint(n=intersected_points_ppp.km$n, f=pop.lg.km, win=pop_stats_by_npc_owin.km) 
   ann.r[i] <- mean(nndist(rand.p, k=1))
 }
 
@@ -119,7 +120,8 @@ ann.p
 #histogram
 hist(ann.r, main=NULL, las=1, col="bisque", xlim=range(ann.p, ann.r))
 abline(v=ann.p, col="blue")
-text(0.99, 170, "1.029995")
+text(0.06, 140, toString(round(ann.p, 5)))
+hist(ann.r)
 
 N.greater <- sum(ann.r > ann.p)
 p <- min(N.greater + 1, n + 1 - N.greater) / (n +1)
@@ -133,7 +135,7 @@ PPM1
 PPM0 <- ppm(intersected_points_ppp.km ~ 1)
 PPM0
 
-#observed instensity
+#observed intensity
 intersected_points_ppp.km$n / area(pop_stats_by_npc_owin.km) 
 
 
