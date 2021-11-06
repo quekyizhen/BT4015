@@ -68,7 +68,6 @@ pop_stats_by_npc.utm <- spTransform(pop_stats_npc, CRS("+proj=utm +zone=48N +dat
 pop_stats_by_npc_owin  <- as.owin(pop_stats_by_npc.utm)
 pop_stats_by_npc_owin.km <- rescale(pop_stats_by_npc_owin, 1000)
 
-
 # point: police station and police post
 intersected_points_spatial <- as(points_in_poly, "Spatial")
 
@@ -76,14 +75,10 @@ intersected_points_spatial.utm <- spTransform(intersected_points_spatial, CRS("+
 
 intersected_points_ppp  <- as.ppp(intersected_points_spatial.utm)
 marks(intersected_points_ppp) <- NULL
-intersected_points_ppp <- rescale(intersected_points_ppp, 1000)
+Window(intersected_points_ppp) <- pop_stats_by_npc_owin
 intersected_points_ppp.km <- rescale(intersected_points_ppp, 1000, "km")
-#Window(intersected_points_ppp.km) <- intersected_points_ppp.km
-#this line throws an error but seems to not be necessary?
 
 # get population density raster layer
-#img  <- raster(pop_stats_by_npc)
-
 r <- raster(pop_stats_by_npc.utm)
 nrow(r) <- 500
 ncol(r) <- 500
@@ -120,24 +115,22 @@ ann.p
 #histogram
 hist(ann.r, main=NULL, las=1, col="bisque", xlim=range(ann.p, ann.r))
 abline(v=ann.p, col="blue")
-text(0.06, 140, toString(round(ann.p, 5)))
-hist(ann.r)
+text(1.06, 151, toString(round(ann.p, 5)))
 
 N.greater <- sum(ann.r > ann.p)
 p <- min(N.greater + 1, n + 1 - N.greater) / (n +1)
 p
 
 #Poisson Point Process Hypothesis Testing
-PPM1 <- ppm(intersected_points_ppp.km ~ pop.lg.km)
-PPM1
-
 #fit the model that assumes that the process' intensity is not a function of population density
 PPM0 <- ppm(intersected_points_ppp.km ~ 1)
 PPM0
 
+PPM1 <- ppm(intersected_points_ppp.km ~ pop.lg.km)
+PPM1
+
 #observed intensity
 intersected_points_ppp.km$n / area(pop_stats_by_npc_owin.km) 
-
 
 ## HC, CC, TA Coverage in each NPC buffer
 #read in hawker centre, cc and tourist attraction point data
