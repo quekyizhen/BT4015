@@ -130,7 +130,11 @@ PPM1 <- ppm(intersected_points_ppp.km ~ pop.lg.km)
 PPM1
 
 #observed intensity
-intersected_points_ppp.km$n / area(pop_stats_by_npc_owin.km) 
+intersected_points_ppp.km$n / area(pop_stats_by_npc_owin.km)
+
+#compare models using likelihood ratio test
+#to see if they are significantly different from each other
+anova(PPM0, PPM1, test="LRT")
 
 ## HC, CC, TA Coverage in each NPC buffer
 #read in hawker centre, cc and tourist attraction point data
