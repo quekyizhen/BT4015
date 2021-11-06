@@ -145,26 +145,37 @@ TA <- st_as_sf(readOGR("C:/Users/Zi Ying/Dropbox/Y4S1/BT4015/BT4015/Data/tourism
 # Buffer for each police station/police post
 npc_point_buf <- st_buffer(points_in_poly, dist = 1000)
 #undissolved buffer
-tm_shape(npc_point_buf) + tm_polygons("blue") + tm_layout(title= 'Undissolved NPC Buffer', title.position = c('right', 'top'))
+tmap_mode('plot')
+tm_shape(NPC_polygon_sf) + tm_borders('black') + tm_shape(npc_point_buf) + tm_polygons("blue", alpha = 0.5) + tm_layout(title= 'Undissolved NPC Buffer', title.position = c('right', 'top'), title.size = 0.8) +tm_layout(legend.title.size = 1,
+             legend.text.size = 0.7,
+             legend.bg.alpha = 1, legend.outside = TRUE)+ 
+  tm_scale_bar(position=c("right", "bottom")) + 
+  tm_compass(type="8star", position=c("right", "top"), show.labels = 3, size=2, text.size=0.5)
 
 npc_point_buf <- st_union(npc_point_buf)
 npc_point_buf <- sf::st_make_valid(npc_point_buf)
-tm_shape(pop_stats_by_npc) + tm_fill("Scl_P_D") + tm_shape(npc_point_buf) + tm_polygons("pink") + tm_shape(HC) + tm_dots("black") + tm_shape(CC) + tm_dots("green") +  tm_shape(TA) + tm_dots("blue")
+#tm_shape(pop_stats_by_npc) + tm_fill("Scl_P_D") + tm_shape(npc_point_buf) + tm_polygons("pink") + tm_shape(HC) + tm_dots("black") + tm_shape(CC) + tm_dots("green") +  tm_shape(TA) + tm_dots("blue")
 
 #plot hawker centre
-tm_shape(npc_point_buf) + tm_polygons("blue")+ tm_shape(HC) + tm_dots("black") + tm_layout(title= 'Hawker Centres in Dissolved NPC Buffer', title.position = c('right', 'top'))
-
+tm_shape(NPC_polygon_sf) + tm_borders('black') + tm_shape(npc_point_buf) + tm_polygons("blue", alpha = 0.5)+ tm_shape(HC) + tm_dots("black", size = 0.1) + tm_layout(title= 'Hawker Centres in Dissolved NPC Buffer', title.position = c('right', 'top'), title.size = 0.8)+ tm_layout(legend.title.size = 0.5,
+            legend.text.size = 0.7,
+            legend.bg.alpha = 1, legend.outside = TRUE)+ 
+  tm_scale_bar(position=c("right", "bottom")) + 
+  tm_compass(type="8star", position=c("right", "top"), show.labels = 3, size=2, text.size=0.5)
 #count of hc, cc, ta in each buffer
 hc_buf_intersection <- st_intersection(HC, npc_point_buf) #polygon, point
 hc_covered <- st_intersection(NPC_polygon_sf, hc_buf_intersection)
 
-tm_shape(NPC_polygon_sf) + tm_borders("yellow")+ tm_shape(hc_covered) + tm_dots("purple")
+#tm_shape(NPC_polygon_sf) + tm_borders("yellow")+ tm_shape(hc_covered) + tm_dots("purple")
 hc_buf_count <- as.data.frame(hc_covered %>% group_by(NPC_NAME) %>% count())[, 1:2]
 names(hc_buf_count)[names(hc_buf_count) == 'n'] <- 'HC_in_buffer'
 
 #plot CC
-tm_shape(npc_point_buf) + tm_polygons("blue")+ tm_shape(CC) + tm_dots("red") + tm_layout(title= 'Community Centres in Dissolved NPC Buffer', title.position = c('right', 'top'))
-
+tm_shape(NPC_polygon_sf) + tm_borders('black') + tm_shape(npc_point_buf) + tm_polygons("blue", alpha = 0.5)+ tm_shape(CC) + tm_dots("red", size = 0.1) + tm_layout(title= 'Community Centres in Dissolved NPC Buffer', title.position = c('right', 'top'), title.size = 0.8) + tm_layout(legend.title.size = 1,
+            legend.text.size = 0.7,
+            legend.bg.alpha = 1, legend.outside = TRUE)+ 
+  tm_scale_bar(position=c("right", "bottom")) + 
+  tm_compass(type="8star", position=c("right", "top"), show.labels = 3, size=2, text.size=0.5)
 #CC
 cc_buf_intersection <- st_intersection(CC, npc_point_buf) #polygon, point
 cc_covered <- st_intersection(NPC_polygon_sf, cc_buf_intersection)
@@ -174,8 +185,11 @@ cc_buf_count <- as.data.frame(cc_covered %>% group_by(NPC_NAME) %>% count())[, 1
 names(cc_buf_count)[names(cc_buf_count) == 'n'] <- 'CC_in_buffer'
 
 #plot TA
-tm_shape(npc_point_buf) + tm_polygons("blue")+ tm_shape(TA) + tm_dots("orange") + tm_layout(title= 'Tourist Attractions in Dissolved NPC Buffer', title.position = c('right', 'top'))
-
+tm_shape(NPC_polygon_sf) + tm_borders('black') + tm_shape(npc_point_buf) + tm_polygons("blue", alpha = 0.5)+ tm_shape(TA) + tm_dots("orange", size = 0.1) + tm_layout(title= 'Tourist Attractions in Dissolved NPC Buffer', title.position = c('right', 'top'), title.size = 0.8) + tm_layout(legend.title.size = 1,
+            legend.text.size = 0.7,
+            legend.bg.alpha = 1, legend.outside = TRUE)+ 
+  tm_scale_bar(position=c("right", "bottom")) + 
+  tm_compass(type="8star", position=c("right", "top"), show.labels = 3, size=2, text.size=0.5)
 #TA
 ta_buf_intersection <- st_intersection(TA, npc_point_buf) #polygon, point
 ta_covered <- st_intersection(NPC_polygon_sf, ta_buf_intersection)
