@@ -105,7 +105,7 @@ pop.lg.km <- rescale(pop.lg, 1000, "km")
 n <- 599L
 ann.r <- vector(length=n)
 for (i in 1:n){
-  rand.p <- rpoint(n=intersected_points_ppp.km$n, f=pop.lg.km, win=pop_stats_by_npc_owin.km) 
+  rand.p <- rpoint(n=intersected_points_ppp.km$n, f=pop.km, win=pop_stats_by_npc_owin.km) 
   ann.r[i] <- mean(nndist(rand.p, k=1))
 }
 
@@ -119,7 +119,7 @@ ann.p
 #histogram
 hist(ann.r, main=NULL, las=1, col="bisque", xlim=range(ann.p, ann.r))
 abline(v=ann.p, col="blue")
-text(1.06, 151, toString(round(ann.p, 5)))
+text(1.06, 130, toString(round(ann.p, 5)))
 
 N.greater <- sum(ann.r > ann.p)
 p <- min(N.greater + 1, n + 1 - N.greater) / (n +1)
