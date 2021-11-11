@@ -233,12 +233,14 @@ final_data_frame <- st_as_sf(merge(final_data_frame, coverage, by = "NPC_NAME", 
 
 final_data_frame_spatial <- as_Spatial(final_data_frame)
 
+# Plot final_data_frame_spatial to check
 tm_shape(final_data_frame_spatial) + 
   tm_fill("crime.rate.npc.area")
 
+# Export spatial data frame to shp file
 writeOGR(final_data_frame_spatial, dsn = "C:/Users/user/Desktop/Study/BT4015/Project/Data",
          layer = "NPC_all_attributes", driver="ESRI Shapefile")
-
+# Export the column names 
 final_data_frame_columns <- as.data.frame(colnames(final_data_frame))
 colnames(final_data_frame_columns) <- c("column_names")
 write.csv(final_data_frame_columns, file = "C:/Users/user/Desktop/Study/BT4015/Project/Data/NPC_all_attributes_col_names.csv")
