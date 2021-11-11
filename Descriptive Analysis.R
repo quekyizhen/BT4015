@@ -1,3 +1,6 @@
+###################
+# Import packages #
+###################
 library(tmap)
 library(rgdal)
 library(sf)
@@ -10,7 +13,9 @@ library(leaflet)
 library(leaflet.extras)
 library(geosphere)
 
-# Read shp files and convert to sf objects
+##############
+# Read files #
+##############
 npc <- st_as_sf(readOGR("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/NPC_all_attributes.shp"))
 hawker_centres <- st_as_sf(readOGR("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/hawker-centres.shp"))
 community_clubs <- st_as_sf(readOGR("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/community-clubs.shp"))
@@ -24,7 +29,9 @@ colnames(npc) = col_names$column_names
 tmap_mode('view') 
 tmap_mode('plot') 
 
-# Non-spatial data
+####################
+# Non-spatial Data #
+####################
 
 # Distribution of Elderly Ratio By NPC
 tm_shape(npc) + 
@@ -138,7 +145,9 @@ tm_shape(npc) +
             legend.bg.alpha = 1, legend.show = TRUE, legend.outside = TRUE) +
   tm_scale_bar(position=c("right", "bottom")) + tm_compass(type="8star", position=c("right", "top"), show.labels = 3, size=2, text.size=0.5)
 
-# Spatial data 
+################
+# Spatial Data #
+################
 
 # Distribution of Crime Rate by NPC
 
