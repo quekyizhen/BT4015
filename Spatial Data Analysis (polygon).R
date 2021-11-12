@@ -22,10 +22,10 @@ library(spgwr)
 ##############
 # Read files #
 ##############
-npc <- st_as_sf(readOGR("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/NPC_all_attributes.shp"))
-col_names <- read.csv("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/NPC_all_attributes_col_names.csv")
+npc <- st_as_sf(readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/NPC_all_attributes.shp"))
+col_names <- read.csv("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/NPC_all_attributes_col_names.csv")
 colnames(npc) = col_names$column_names
-npc_polygon <- readOGR("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/NPC_all_attributes.shp")
+npc_polygon <- readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/NPC_all_attributes.shp")
 
 ###########################
 # Spatial Autocorrelation #
@@ -137,6 +137,7 @@ rownames(correlation) <- c("Elderly", "Chinese", "Malay", "Indian", "Others", "M
                            "CC Percent", "HC Percent", "TA Percent", "Crime Rate (Target)")
 corrplot::corrplot(correlation, type = "lower", order = "hclust", 
                    tl.col = "black", tl.srt = 45)
+
 ### Return pairs of variables with correlation higher than a certain threshold
 correlation_above_threshold <- function(correlation_npc, threshold) {
   row_count = 0

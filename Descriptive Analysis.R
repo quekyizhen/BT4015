@@ -16,13 +16,14 @@ library(geosphere)
 ##############
 # Read files #
 ##############
-npc <- st_as_sf(readOGR("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/NPC_all_attributes.shp"))
-hawker_centres <- st_as_sf(readOGR("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/hawker-centres.shp"))
-community_clubs <- st_as_sf(readOGR("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/community-clubs.shp"))
-tourist_attraction <- st_as_sf(readOGR("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/tourism.shp"))
+npc <- st_as_sf(readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/NPC_all_attributes.shp"))
+npc_polygon <- readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/NPC_all_attributes.shp")
+hawker_centres <- st_as_sf(readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/hawker-centres.shp"))
+community_clubs <- st_as_sf(readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/community-clubs.shp"))
+tourist_attraction <- st_as_sf(readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/tourism.shp"))
 
 # Read in and replace column names for the NPC shp file 
-col_names <- read.csv("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/NPC_all_attributes_col_names.csv")
+col_names <- read.csv("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/NPC_all_attributes_col_names.csv")
 colnames(npc) = col_names$column_names
 
 # Switch between tmap modes
@@ -162,7 +163,7 @@ tm_shape(npc) +
   tm_compass(type="8star", position=c("right", "top"), show.labels = 3, size=2, text.size=0.5)
 
 ## Heat map
-npc_polygon_centroid <- centroid(readOGR("C:/Users/Yi Zhen/Desktop/Y4S1/BT4015/Project/Datasets/NPC_all_attributes.shp"))
+npc_polygon_centroid <- centroid(npc_polygon)
 npc_centroid_sf <- SpatialPointsDataFrame(coords = npc_polygon_centroid, data = as.data.frame(npc))
 
 pal <- colorNumeric(
