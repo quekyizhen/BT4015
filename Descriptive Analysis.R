@@ -21,8 +21,6 @@ npc_polygon <- readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/NPC_all_at
 hawker_centres <- st_as_sf(readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/hawker-centres.shp"))
 community_clubs <- st_as_sf(readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/community-clubs.shp"))
 tourist_attraction <- st_as_sf(readOGR("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/tourism.shp"))
-
-# Read in and replace column names for the NPC shp file 
 col_names <- read.csv("C:/Users/Yi Zhen/Documents/GitHub/BT4015/Data/NPC_all_attributes_col_names.csv")
 colnames(npc) = col_names$column_names
 
@@ -229,7 +227,7 @@ tm_shape(npc) +
 
 # Distribution of Gender Ratio By NPC
 tm_shape(npc) + 
-tm_fill("crime.rate.npc.area", title = "Gender Ratio by NPC") + 
+tm_fill("crime.rate.npc.area", title = "Crime Rate by NPC") + 
   tm_bubbles(size="Scaled.Female.Ratio", col="pink", alpha=1) +
 tm_shape(npc) + 
   tm_bubbles(size="Scaled.Male.Ratio", col = "blue", alpha =1) +
@@ -243,7 +241,7 @@ tm_borders("black") +
 
 # Distribution of Ethnicity By NPC
 tm_shape(npc) + 
-  tm_fill("crime.rate.npc.area", title = "Ratio of Chinese Residents by NPC") + 
+  tm_fill("crime.rate.npc.area", title = "Crime Rate by NPC") + 
   tm_bubbles(size="Scaled.Chinese.Ratio", col = c("blue"), alpha = 1) +
   tm_borders("black")  +
   tm_layout(legend.title.size = 1,
@@ -253,7 +251,7 @@ tm_shape(npc) +
   tm_compass(type="8star", position=c("right", "top"), show.labels = 3, size=2, text.size=0.5)
 
 tm_shape(npc) + 
-  tm_fill("crime.rate.npc.area", title = "Ratio of Malay Residents by NPC") + 
+  tm_fill("crime.rate.npc.area", title = "Crime Rate by NPC") + 
     tm_bubbles(size="Scaled.Malay.Ratio", col = c("green"), alpha = 1) +
   tm_borders("black")  +
   tm_layout(legend.title.size = 0.7,
@@ -263,7 +261,7 @@ tm_shape(npc) +
   tm_compass(type="8star", position=c("right", "top"), show.labels = 3, size=2, text.size=0.5)
 
 tm_shape(npc) + 
-  tm_fill("crime.rate.npc.area", title = "Ratio of Indian Residents by NPC") + 
+  tm_fill("crime.rate.npc.area", title = "Crime Rate by NPC") + 
   tm_bubbles(size="Scaled.Indian.Ratio", col = c("yellow"), alpha = 1) +
   tm_borders("black")  +
   tm_layout(legend.title.size = 0.7,
@@ -273,7 +271,7 @@ tm_shape(npc) +
   tm_compass(type="8star", position=c("right", "top"), show.labels = 3, size=2, text.size=0.5)
 
 tm_shape(npc) + 
-  tm_fill("crime.rate.npc.area", title = "Ratio of Other Residents by NPC") + 
+  tm_fill("crime.rate.npc.area", title = "Crime Rate by NPC") + 
   tm_bubbles(size="Scaled.Others.Ratio", col = c("pink"), alpha = 1) +
   tm_borders("black")  +
   tm_layout(legend.title.size = 0.8,
